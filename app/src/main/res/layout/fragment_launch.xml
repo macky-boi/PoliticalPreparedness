@@ -22,7 +22,7 @@
 
         <!-- TODO: Add Button to navigate to upcoming elections. -->
         <Button
-            android:id="@+id/button"
+            android:id="@+id/upcomingButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
@@ -36,17 +36,17 @@
 
         <!-- TODO: Add Button to navigate to representatives. -->
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/representativeButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
             android:layout_marginTop="@dimen/padding_extra_large"
             android:layout_marginEnd="@dimen/padding_large"
-            android:text="@string/btn_upcoming_elections"
+            android:text="@string/btn_representatives"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button" />
+            app:layout_constraintTop_toBottomOf="@+id/upcomingButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="padding_medium">8dp</dimen>
+    <dimen name="default_padding">8dp</dimen>
 
     <!-- TODO: Add necessary dimension values -->s
     <dimen name="padding_large">16dp</dimen>
