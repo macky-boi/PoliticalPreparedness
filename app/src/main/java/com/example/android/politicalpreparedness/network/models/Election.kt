@@ -4,6 +4,7 @@ import androidx.room.*
 import com.squareup.moshi.*
 import java.util.*
 
+@JsonClass(generateAdapter = true)
 @Entity(tableName = "election_table")
 data class Election(
         @PrimaryKey val id: Int,

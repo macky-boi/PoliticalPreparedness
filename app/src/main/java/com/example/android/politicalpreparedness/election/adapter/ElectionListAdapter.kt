@@ -16,9 +16,9 @@ package com.example.android.politicalpreparedness.election.adapter
 //
 //    // TODO: Add companion object to inflate ViewHolder (from)
 //}
-
+//
 // TODO: Create ElectionViewHolder
-
+//
 // TODO: Create ElectionDiffCallback
-
+//
 // TODO: Create ElectionListener
