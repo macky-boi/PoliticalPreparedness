@@ -5,4 +5,8 @@
     <!-- TODO: Add necessary dimension values -->s
     <dimen name="padding_large">16dp</dimen>
     <dimen name="padding_extra_large">24dp</dimen>
+
+    <dimen name="text_medium">16sp</dimen>
+    <dimen name="text_large">18sp</dimen>
+    <dimen name="text_small">14sp</dimen>
 </resources>
