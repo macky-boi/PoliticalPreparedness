@@ -5,7 +5,10 @@
     <!-- TODO: Add necessary string values -->
 
     <!-- Fragment: Launch -->
-    <string name="btn_upcoming_elections">Upcoming elections</string>
+    <string name="btn_upcoming_elections">Upcoming Elections</string>
     <string name="btn_representatives">Find my representatives</string>
+
+    <!-- Fragment: Elections -->
+    <string name="header_elections">Upcoming Elections</string>
 
 </resources>
