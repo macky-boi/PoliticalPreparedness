@@ -14,19 +14,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-//TODO: Construct ViewModel and provide election datasource
+//TODO: Construct ViewModel and provide election datasource (x)
 class ElectionsViewModel(
     private val repository: PoliticalPreparednessRepository
 ): ViewModel() {
     private val _navigateToInfo = SingleLiveEvent<Election>()
     val navigateToInfo: LiveData<Election> = _navigateToInfo
 
-    //TODO: Create live data val for upcoming elections
+    //TODO: Create live data val for upcoming elections (x)
     private val _elections = MutableLiveData<List<Election>>(emptyList())
     val elections: LiveData<List<Election>> = _elections
 
     init {
         Timber.d("initialize")
+        refreshElections()
+    }
+
+    private fun refreshElections() {
         viewModelScope.launch(Dispatchers.IO){
             val electionResponse = repository.getElections()
             electionResponse.onSuccess { election ->

@@ -32,7 +32,8 @@ class ElectionListAdapter(private val clickListener: ElectionListener)
 class ElectionViewHolder private constructor(private val binding: ItemElectionBinding) :
     RecyclerView.ViewHolder(binding.root) {
         fun bind(clickListener: ElectionListener, item: Election) {
-            binding.election = item.toUiModel()
+            binding.election= item
+            binding.electionUi = item.toUiModel()
             binding.clickListener = clickListener
             binding.executePendingBindings()
         }
