@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.example.android.politicalpreparedness.PoliticalPreparednessApplication
@@ -53,6 +54,13 @@ class VoterInfoFragment : Fragment() {
         // TODO: Handle save button UI state
         // TODO: cont'd Handle save button clicks
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.voterInfo.observe(viewLifecycleOwner, Observer { voterInfoResponse ->
+            Timber.d("voterInfoResponse: $voterInfoResponse")
+        })
     }
 
     // TODO: Create method to load URL intents

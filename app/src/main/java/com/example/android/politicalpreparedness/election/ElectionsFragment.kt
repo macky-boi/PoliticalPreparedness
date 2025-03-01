@@ -62,7 +62,12 @@ class ElectionsFragment: Fragment() {
         }
 
         viewModel.elections.observe(viewLifecycleOwner, Observer { elections ->
-            Timber.d("elections: $elections")})
+            Timber.d("elections: $elections")
+            for (election in elections) {
+                Timber.d("divisionId: ${election.division}")
+            }
+        })
+
 
         // TODO: Link elections to voter info (x)
         viewModel.navigateToInfo.observe(viewLifecycleOwner, Observer { election ->

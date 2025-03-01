@@ -14,7 +14,7 @@ class VoterInfoViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(VoterInfoViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return VoterInfoViewModel(repository) as T
+            return VoterInfoViewModel(repository, electionId, division) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
