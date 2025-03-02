@@ -58,8 +58,15 @@ class VoterInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.lifecycleOwner = viewLifecycleOwner
         viewModel.voterInfo.observe(viewLifecycleOwner, Observer { voterInfoResponse ->
             Timber.d("voterInfoResponse: $voterInfoResponse")
+            val input = voterInfoResponse?.state?.firstOrNull()?.name ?: ""
+            binding.stateHeader.text = getString(R.string.header_state, input)
+        })
+
+        viewModel.correspondenceAddress.observe(viewLifecycleOwner, Observer { correspondenceAddress ->
+            Timber.d("correspondenceAddress: $correspondenceAddress")
         })
     }
 

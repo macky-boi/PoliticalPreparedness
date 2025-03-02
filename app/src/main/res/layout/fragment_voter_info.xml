@@ -4,6 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- TODO: Add data binding node for Voter Info ViewModel -->
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.android.politicalpreparedness.election.VoterInfoViewModel" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,7 +23,7 @@
             android:padding="@dimen/default_padding"
             android:singleLine="true"
             app:layout_constraintTop_toTopOf="parent"
-            tools:title="US Election Info" />
+            app:title="@{viewModel.name}" />
 
         <!-- TODO: Add visual styling -->
         <TextView
@@ -27,6 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/default_padding"
             app:layout_constraintTop_toBottomOf="@id/election_name"
+            android:text="@{viewModel.date}"
             tools:text="12 November 2055" />
 
         <!-- TODO: Add visual styling and content -->
@@ -47,7 +53,9 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/state_header"
             app:layout_constraintStart_toStartOf="@id/election_date"
-            tools:text="Click here for voting location"/>
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:text="@string/url_state_locations"/>
 
         <!-- TODO: Add click binding to open web URL -->
         <!-- TODO: Add visual styling and content -->
@@ -57,13 +65,15 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/state_locations"
             app:layout_constraintStart_toStartOf="@id/election_date"
-            tools:text="Click here for ballot information"/>
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:text="@string/url_state_ballot"/>
 
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/address_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="state_correspondence_header,address" />
+<!--        <androidx.constraintlayout.widget.Group-->
+<!--            android:id="@+id/address_group"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:constraint_referenced_ids="state_correspondence_header,address" />-->
 
         <!-- TODO: Add visual styling and content -->
         <TextView
@@ -71,7 +81,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/state_ballot"
-            app:layout_constraintStart_toStartOf="@id/election_date" />
+            app:layout_constraintStart_toStartOf="@id/election_date"
+            android:text="@string/header_correspondence_address"/>
 
         <!-- TODO: Add data binding -->
         <TextView
@@ -79,7 +90,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/state_correspondence_header"
-            app:layout_constraintStart_toStartOf="@id/election_date" />
+            app:layout_constraintStart_toStartOf="@id/election_date"
+            android:text="@{viewModel.correspondenceAddress}"
+            tools:text="1500 11th Street, 5th Floor Sacramento, California 95814"/>
 
         <!-- TODO: Add button to save election to Room -->
 

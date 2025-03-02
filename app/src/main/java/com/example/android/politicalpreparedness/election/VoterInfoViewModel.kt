@@ -1,10 +1,13 @@
 package com.example.android.politicalpreparedness.election
 
+import android.view.animation.Transformation
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.politicalpreparedness.PoliticalPreparednessRepository
+import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.models.Division
 import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
@@ -25,6 +28,38 @@ class VoterInfoViewModel(
     //TODO: Add live data to hold voter info
     private val _voterInfo = MutableLiveData<VoterInfoResponse>(null)
     val voterInfo: LiveData<VoterInfoResponse> = _voterInfo
+
+    val name = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo.election.name
+        }
+    }
+
+    val date = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo.election.electionDay.toString()
+        }
+    }
+
+
+    val votingLocation = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo.state?.get(0)?.electionAdministrationBody?.votingLocationFinderUrl.toString()
+        }
+    }
+
+    val ballotInfo = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo.state?.get(0)?.electionAdministrationBody?.ballotInfoUrl.toString()
+        }
+    }
+
+    val correspondenceAddress = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo?.state?.get(0)?.electionAdministrationBody?.correspondenceAddress?.toFormattedString()
+        }
+    }
+
 
     //TODO: Add var and methods to populate voter info
     init {

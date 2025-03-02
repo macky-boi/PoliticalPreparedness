@@ -81,4 +81,6 @@ dependencies {
 
     // Timber
     implementation "com.jakewharton.timber:timber:$version_timber"
+
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.8.7"
 }

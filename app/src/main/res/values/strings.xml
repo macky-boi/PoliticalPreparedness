@@ -11,4 +11,9 @@
     <!-- Fragment: Elections -->
     <string name="header_elections">Upcoming Elections</string>
 
+    <!-- Fragment: VoterInfo -->
+    <string name="header_state">Election Information: %1$s</string>
+    <string name="header_correspondence_address">State Election Office Correspondence Address</string>
+    <string name="url_state_locations">Click here for voting location</string>
+    <string name="url_state_ballot">Click here for ballot information</string>
 </resources>
