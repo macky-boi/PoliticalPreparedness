@@ -16,4 +16,5 @@
     <string name="header_correspondence_address">State Election Office Correspondence Address</string>
     <string name="url_state_locations">Click here for voting location</string>
     <string name="url_state_ballot">Click here for ballot information</string>
+    <string name="btn_follow_election">Follow election</string>
 </resources>

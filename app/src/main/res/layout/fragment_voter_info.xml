@@ -96,6 +96,16 @@
             tools:text="1500 11th Street, 5th Floor Sacramento, California 95814"/>
 
         <!-- TODO: Add button to save election to Room -->
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="@string/btn_follow_election"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginVertical="@dimen/padding_extra_large"
+            app:layout_constraintStart_toStartOf="parent"
+            android:padding="@dimen/padding_extra_large"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
