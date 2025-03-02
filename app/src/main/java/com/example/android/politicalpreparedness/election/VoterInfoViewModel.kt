@@ -10,7 +10,9 @@ import com.example.android.politicalpreparedness.PoliticalPreparednessRepository
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.network.models.Division
+import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
+import com.example.android.politicalpreparedness.utils.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -29,18 +31,26 @@ class VoterInfoViewModel(
     private val _voterInfo = MutableLiveData<VoterInfoResponse>(null)
     val voterInfo: LiveData<VoterInfoResponse> = _voterInfo
 
+    private val _navigateToElections = SingleLiveEvent<Boolean>()
+    val navigateToElections: LiveData<Boolean> = _navigateToElections
+
     val name = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
             this.value = voterInfo.election.name
         }
     }
 
-    val date = MediatorLiveData<String>().apply {
+    val election = MediatorLiveData<Election>().apply {
         addSource(voterInfo) { voterInfo ->
-            this.value = voterInfo.election.electionDay.toString()
+            this.value = voterInfo?.election
         }
     }
 
+    val date = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo?.election?.electionDay.toString()
+        }
+    }
 
     val votingLocationUrl = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
@@ -66,6 +76,13 @@ class VoterInfoViewModel(
         refreshVoterInfo()
     }
 
+    fun saveElection() {
+        viewModelScope.launch {
+            repository.saveElection(election.value!!)
+            _navigateToElections.value = true
+        }
+    }
+
     private fun refreshVoterInfo() {
         val state = division.state.ifEmpty { DEFAULT_STATE }
         val address = "${state},${division.country}"
@@ -85,7 +102,7 @@ class VoterInfoViewModel(
     //TODO: Add var and methods to support loading URLs
 
     //TODO: Add var and methods to save and remove elections to local database
-    //TODO: cont'd -- Populate initial state of save button to reflect proper action based on election saved status
+    //TODO: Populate initial state of save button to reflect proper action based on election saved status
 
     /**
      * Hint: The saved state can be accomplished in multiple ways. It is directly related to how elections are saved/removed from the database.

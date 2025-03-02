@@ -13,6 +13,6 @@ class PoliticalPreparednessApplication: Application() {
             Timber.plant(Timber.DebugTree())
         }
 
-        container = DefaultAppContainer()
+        container = DefaultAppContainer(applicationContext)
     }
 }

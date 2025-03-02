@@ -97,6 +97,7 @@
 
         <!-- TODO: Add button to save election to Room -->
         <Button
+            android:id="@+id/save_election_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"

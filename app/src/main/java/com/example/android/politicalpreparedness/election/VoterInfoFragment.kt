@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.android.politicalpreparedness.PoliticalPreparednessApplication
 import com.example.android.politicalpreparedness.R
@@ -67,6 +68,10 @@ class VoterInfoFragment : Fragment() {
             binding.stateHeader.text = getString(R.string.header_state, input)
         })
 
+        viewModel.navigateToElections.observe(viewLifecycleOwner, Observer {
+            if (it) findNavController().popBackStack()
+        })
+
         viewModel.ballotInfoUrl.observe(viewLifecycleOwner, Observer { url ->
             Timber.d("ballotInfoUrl: $url")
             if (url !== null) {
@@ -80,6 +85,15 @@ class VoterInfoFragment : Fragment() {
         viewModel.correspondenceAddress.observe(viewLifecycleOwner, Observer { correspondenceAddress ->
             Timber.d("correspondenceAddress: $correspondenceAddress")
         })
+
+        binding.saveElectionButton.setOnClickListener {
+            viewModel.saveElection()
+        }
+
+        viewModel.election.observe(viewLifecycleOwner, Observer { election ->
+            binding.saveElectionButton.isEnabled = election != null
+        })
+
     }
 
     // TODO: Create method to load URL intents

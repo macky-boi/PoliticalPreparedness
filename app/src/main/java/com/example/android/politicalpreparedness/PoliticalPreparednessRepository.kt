@@ -3,9 +3,12 @@ package com.example.android.politicalpreparedness
 import android.net.http.HttpException
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.lifecycle.LiveData
+import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.election.VoterInfoViewModel
 import com.example.android.politicalpreparedness.election.VoterInfoViewModel.Companion
 import com.example.android.politicalpreparedness.network.CivicsApiService
+import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.network.models.ElectionResponse
 import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
 import com.squareup.moshi.JsonDataException
@@ -18,14 +21,27 @@ import kotlin.coroutines.cancellation.CancellationException
 interface PoliticalPreparednessRepository {
     suspend fun getElections() : Result<ElectionResponse>
     suspend fun getVoterInfo(address: String, electionId: Int) : Result<VoterInfoResponse>
+    suspend fun saveElection(election: Election)
+    fun getSavedElections() : LiveData<List<Election>>
 }
 
 class PoliticalPreparednessRepositoryImpl(
-    private val civicsApiService: CivicsApiService) : PoliticalPreparednessRepository {
-        @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    private val civicsApiService: CivicsApiService,
+    private val electionDao: ElectionDao
+) : PoliticalPreparednessRepository {
 
-    companion object {
-        private const val DEFAULT_STATE = "ca"
+    override suspend fun saveElection(election: Election)  {
+         try {
+            electionDao.insertElection(election)
+             Timber.d("successfully saved election")
+        } catch (e: Exception) {
+            Timber.e(e,"Error saving Election")
+            throw e
+        }
+    }
+
+    override fun getSavedElections() : LiveData<List<Election>> {
+        return electionDao.getAllElections()
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
