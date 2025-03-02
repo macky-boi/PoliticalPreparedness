@@ -55,6 +55,7 @@
             app:layout_constraintStart_toStartOf="@id/election_date"
             android:autoLink="web"
             android:linksClickable="true"
+            android:focusable="true"
             android:text="@string/url_state_locations"/>
 
         <!-- TODO: Add click binding to open web URL -->

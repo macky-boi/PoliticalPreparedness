@@ -42,15 +42,15 @@ class VoterInfoViewModel(
     }
 
 
-    val votingLocation = MediatorLiveData<String>().apply {
+    val votingLocationUrl = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
-            this.value = voterInfo.state?.get(0)?.electionAdministrationBody?.votingLocationFinderUrl.toString()
+            this.value = voterInfo?.state?.get(0)?.electionAdministrationBody?.votingLocationFinderUrl.toString()
         }
     }
 
-    val ballotInfo = MediatorLiveData<String>().apply {
+    val ballotInfoUrl = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
-            this.value = voterInfo.state?.get(0)?.electionAdministrationBody?.ballotInfoUrl.toString()
+            this.value = voterInfo?.state?.get(0)?.electionAdministrationBody?.ballotInfoUrl
         }
     }
 

@@ -1,5 +1,7 @@
 package com.example.android.politicalpreparedness.election
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -63,6 +65,16 @@ class VoterInfoFragment : Fragment() {
             Timber.d("voterInfoResponse: $voterInfoResponse")
             val input = voterInfoResponse?.state?.firstOrNull()?.name ?: ""
             binding.stateHeader.text = getString(R.string.header_state, input)
+        })
+
+        viewModel.ballotInfoUrl.observe(viewLifecycleOwner, Observer { url ->
+            Timber.d("ballotInfoUrl: $url")
+            if (url !== null) {
+                binding.stateBallot.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(intent)
+                }
+            }
         })
 
         viewModel.correspondenceAddress.observe(viewLifecycleOwner, Observer { correspondenceAddress ->
