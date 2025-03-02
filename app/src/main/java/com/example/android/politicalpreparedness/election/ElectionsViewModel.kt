@@ -25,7 +25,7 @@ class ElectionsViewModel(
     private val _elections = MutableLiveData<List<Election>>(emptyList())
     val elections: LiveData<List<Election>> = _elections
 
-    private val _savedElections = repository.getSavedElections()
+    val savedElections = repository.getSavedElections()
 
     init {
         Timber.d("initialize")

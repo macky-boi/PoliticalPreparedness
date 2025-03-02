@@ -61,6 +61,15 @@ class ElectionsFragment: Fragment() {
             this.adapter = adapter
         }
 
+        binding.savedElectionsRecycleView.apply {
+            layoutManager = LinearLayoutManager(this.context)
+            val adapter = ElectionListAdapter(ElectionListener { election ->
+                viewModel.navigateToInfo(election)
+            })
+            // TODO: Populate recycler adapters (x)
+            this.adapter = adapter
+        }
+
         viewModel.elections.observe(viewLifecycleOwner, Observer { elections ->
             Timber.d("elections: $elections")
             for (election in elections) {
@@ -75,6 +84,10 @@ class ElectionsFragment: Fragment() {
             findNavController().navigate(
                 ElectionsFragmentDirections
                     .actionElectionsFragmentToVoterInfoFragment(election.id, election.division))})
+
+        viewModel.savedElections.observe(viewLifecycleOwner, Observer { savedElections ->
+            Timber.d("saved elections: $savedElections")
+        })
     }
 
     // TODO: Refresh adapters when fragment loads (x)

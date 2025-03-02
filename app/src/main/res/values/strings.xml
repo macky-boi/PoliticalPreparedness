@@ -10,6 +10,7 @@
 
     <!-- Fragment: Elections -->
     <string name="header_elections">Upcoming Elections</string>
+    <string name="header_saved_elections">Saved Elections</string>
 
     <!-- Fragment: VoterInfo -->
     <string name="header_state">Election Information: %1$s</string>

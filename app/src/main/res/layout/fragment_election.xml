@@ -30,9 +30,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/header_elections"
+            app:layout_constraintBottom_toTopOf="@+id/header_saved_elections"
+            app:layout_constraintVertical_bias="0"
             android:liveData="@{viewModel.elections}"/>
 
+        <TextView
+            android:padding="@dimen/default_padding"
+            android:id="@+id/header_saved_elections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/header_saved_elections"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="@dimen/extra_large"
+            android:textStyle="bold"/>
+
         <!-- TODO: Add Saved Election Recycler and Header -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/saved_elections_recycleView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/header_saved_elections"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0"
+            android:liveData="@{viewModel.savedElections}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
