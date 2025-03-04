@@ -86,13 +86,26 @@ class VoterInfoFragment : Fragment() {
             Timber.d("correspondenceAddress: $correspondenceAddress")
         })
 
+        viewModel.isSaved.observe(viewLifecycleOwner) { isSaved ->
+            binding.saveElectionButton.text = if (isSaved) {
+                getString(R.string.btn_unfollow_election)
+            } else {
+                getString(R.string.btn_follow_election)
+            }
+        }
+
         binding.saveElectionButton.setOnClickListener {
-            viewModel.saveElection()
+            if (viewModel.isSaved.value == true) {
+                viewModel.removeElection()
+            } else {
+                viewModel.saveElection()
+            }
         }
 
         viewModel.isSaveButtonEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
             binding.saveElectionButton.isEnabled = isEnabled != false
         })
+
 
     }
 

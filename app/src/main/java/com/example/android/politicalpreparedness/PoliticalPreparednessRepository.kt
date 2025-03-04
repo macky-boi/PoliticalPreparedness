@@ -4,6 +4,7 @@ import android.net.http.HttpException
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.LiveData
+import androidx.room.Query
 import com.example.android.politicalpreparedness.database.ElectionDao
 import com.example.android.politicalpreparedness.election.VoterInfoViewModel
 import com.example.android.politicalpreparedness.election.VoterInfoViewModel.Companion
@@ -24,6 +25,7 @@ interface PoliticalPreparednessRepository {
     suspend fun saveElection(election: Election)
     fun getSavedElections() : LiveData<List<Election>>
     fun getSavedElection(id: Int): LiveData<Election>
+    suspend fun deleteElection(id: Int)
 }
 
 class PoliticalPreparednessRepositoryImpl(
@@ -45,7 +47,16 @@ class PoliticalPreparednessRepositoryImpl(
         try {
             return electionDao.getElection(id)
         } catch (e: Exception) {
-            Timber.e(e,"Error saving Election")
+            Timber.e(e,"Error retrieving Election from database")
+            throw e
+        }
+    }
+
+    override suspend fun deleteElection(id: Int) {
+        try {
+            return electionDao.deleteElection(id)
+        } catch (e: Exception) {
+            Timber.e(e,"Error deleting Election from database")
             throw e
         }
     }

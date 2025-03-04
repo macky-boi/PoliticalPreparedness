@@ -13,6 +13,7 @@ import com.example.android.politicalpreparedness.network.models.Division
 import com.example.android.politicalpreparedness.network.models.Election
 import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
 import com.example.android.politicalpreparedness.utils.SingleLiveEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -36,7 +37,7 @@ class VoterInfoViewModel(
 
     private val savedElection = repository.getSavedElection(electionId)
 
-    private val isSaved = MediatorLiveData<Boolean>(false).apply {
+    val isSaved = MediatorLiveData<Boolean>(false).apply {
         addSource(savedElection) { savedElection ->
             this.value = savedElection !== null
         }
@@ -61,10 +62,9 @@ class VoterInfoViewModel(
     }
 
     val isSaveButtonEnabled = MediatorLiveData<Boolean>(false).apply {
-        Timber.d("isSaved: ${isSaved.value}")
-        Timber.d("election: ${election.value}")
-        addSource(isSaved) { updateButtonState() }
-        addSource(election) { updateButtonState() }
+        addSource(election) { election ->
+            value = election !== null
+        }
     }
 
     val date = MediatorLiveData<String>().apply {
@@ -98,9 +98,9 @@ class VoterInfoViewModel(
     }
 
     fun saveElection() {
+        Timber.d("saveElection")
         viewModelScope.launch {
             repository.saveElection(election.value!!)
-            _navigateToElections.value = true
         }
     }
 
@@ -123,6 +123,15 @@ class VoterInfoViewModel(
     //TODO: Add var and methods to support loading URLs
 
     //TODO: Add var and methods to save and remove elections to local database
+    fun removeElection() {
+        Timber.d("removeElection")
+        viewModelScope.launch {
+            election.value?.let { repository.deleteElection(it.id) }
+            Timber.d("successfully deleted election from database")
+        }
+    }
+
+
     //TODO: Populate initial state of save button to reflect proper action based on election saved status
 
     /**
