@@ -23,6 +23,7 @@ interface PoliticalPreparednessRepository {
     suspend fun getVoterInfo(address: String, electionId: Int) : Result<VoterInfoResponse>
     suspend fun saveElection(election: Election)
     fun getSavedElections() : LiveData<List<Election>>
+    fun getSavedElection(id: Int): LiveData<Election>
 }
 
 class PoliticalPreparednessRepositoryImpl(
@@ -34,6 +35,15 @@ class PoliticalPreparednessRepositoryImpl(
          try {
             electionDao.insertElection(election)
              Timber.d("successfully saved election")
+        } catch (e: Exception) {
+            Timber.e(e,"Error saving Election")
+            throw e
+        }
+    }
+
+    override fun getSavedElection(id: Int): LiveData<Election> {
+        try {
+            return electionDao.getElection(id)
         } catch (e: Exception) {
             Timber.e(e,"Error saving Election")
             throw e

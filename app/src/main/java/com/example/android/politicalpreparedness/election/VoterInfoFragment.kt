@@ -90,8 +90,8 @@ class VoterInfoFragment : Fragment() {
             viewModel.saveElection()
         }
 
-        viewModel.election.observe(viewLifecycleOwner, Observer { election ->
-            binding.saveElectionButton.isEnabled = election != null
+        viewModel.isSaveButtonEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+            binding.saveElectionButton.isEnabled = isEnabled != false
         })
 
     }

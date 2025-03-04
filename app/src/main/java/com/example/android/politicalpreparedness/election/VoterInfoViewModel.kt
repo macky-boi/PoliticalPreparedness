@@ -28,22 +28,43 @@ class VoterInfoViewModel(
     }
 
     //TODO: Add live data to hold voter info
-    private val _voterInfo = MutableLiveData<VoterInfoResponse>(null)
-    val voterInfo: LiveData<VoterInfoResponse> = _voterInfo
+    private val _voterInfo = MutableLiveData<VoterInfoResponse?>(null)
+    val voterInfo: LiveData<VoterInfoResponse?> = _voterInfo
 
     private val _navigateToElections = SingleLiveEvent<Boolean>()
     val navigateToElections: LiveData<Boolean> = _navigateToElections
 
-    val name = MediatorLiveData<String>().apply {
-        addSource(voterInfo) { voterInfo ->
-            this.value = voterInfo.election.name
+    private val savedElection = repository.getSavedElection(electionId)
+
+    private val isSaved = MediatorLiveData<Boolean>(false).apply {
+        addSource(savedElection) { savedElection ->
+            this.value = savedElection !== null
         }
     }
 
-    val election = MediatorLiveData<Election>().apply {
+    private fun updateButtonState() {
+        val electionExists = election.value != null
+        val alreadySaved = isSaved.value != false
+        isSaveButtonEnabled.value = electionExists && !alreadySaved
+    }
+
+    val name = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
-            this.value = voterInfo?.election
+            this.value = voterInfo?.election?.name
         }
+    }
+
+    val election = MediatorLiveData<Election?>(null).apply {
+        addSource(voterInfo) { voterInfo ->
+            value = voterInfo?.election
+        }
+    }
+
+    val isSaveButtonEnabled = MediatorLiveData<Boolean>(false).apply {
+        Timber.d("isSaved: ${isSaved.value}")
+        Timber.d("election: ${election.value}")
+        addSource(isSaved) { updateButtonState() }
+        addSource(election) { updateButtonState() }
     }
 
     val date = MediatorLiveData<String>().apply {
