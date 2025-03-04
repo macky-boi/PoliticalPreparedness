@@ -8,11 +8,11 @@ import com.example.android.politicalpreparedness.PoliticalPreparednessRepository
 class ElectionsViewModelFactory(
     private val repository: PoliticalPreparednessRepository
 ): ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ElectionsViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ElectionsViewModel(repository) as T
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        when {
+            modelClass.isAssignableFrom(ElectionsViewModel::class.java)  ->
+                ElectionsViewModel(repository) as T
+            else -> throw IllegalArgumentException("Unknown ViewModel class ${modelClass.name}")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }
