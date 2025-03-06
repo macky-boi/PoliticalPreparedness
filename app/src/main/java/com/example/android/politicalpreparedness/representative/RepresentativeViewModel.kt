@@ -1,8 +1,16 @@
 package com.example.android.politicalpreparedness.representative
 
 import androidx.lifecycle.ViewModel
+import com.example.android.politicalpreparedness.PoliticalPreparednessRepository
+import timber.log.Timber
 
-class RepresentativeViewModel: ViewModel() {
+class RepresentativeViewModel(
+    repository: PoliticalPreparednessRepository
+): ViewModel() {
+
+    init {
+        Timber.d("init")
+    }
 
     //TODO: Establish live data for representatives and address
 

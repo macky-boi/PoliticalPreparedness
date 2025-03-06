@@ -8,9 +8,13 @@ import android.view.*
 import android.view.inputmethod.InputMethodManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.example.android.politicalpreparedness.PoliticalPreparednessApplication
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
+import com.example.android.politicalpreparedness.election.VoterInfoViewModel
+import com.example.android.politicalpreparedness.election.VoterInfoViewModelFactory
 import com.example.android.politicalpreparedness.network.models.Address
 import java.util.Locale
 
@@ -23,10 +27,18 @@ class DetailFragment : Fragment() {
     }
 
     //TODO: Declare ViewModel
+    private lateinit var viewModel: RepresentativeViewModel
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
+        val appContainer = (requireActivity().application as PoliticalPreparednessApplication)
+            .container
+        val repository = appContainer.politicalPreparednessRepository
+        viewModel = ViewModelProvider(this,
+            RepresentativeViewModelFactory(repository)
+        )[RepresentativeViewModel::class.java]
 
         //TODO: Establish bindings
         binding = DataBindingUtil.inflate(
