@@ -55,6 +55,12 @@ class VoterInfoViewModel(
         }
     }
 
+    val state = MediatorLiveData<String>().apply {
+        addSource(voterInfo) { voterInfo ->
+            this.value = voterInfo?.state?.firstOrNull()?.name
+        }
+    }
+
     val election = MediatorLiveData<Election?>(null).apply {
         addSource(voterInfo) { voterInfo ->
             value = voterInfo?.election
@@ -66,6 +72,7 @@ class VoterInfoViewModel(
             value = election !== null
         }
     }
+
 
     val date = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
@@ -82,6 +89,12 @@ class VoterInfoViewModel(
     val ballotInfoUrl = MediatorLiveData<String>().apply {
         addSource(voterInfo) { voterInfo ->
             this.value = voterInfo?.state?.get(0)?.electionAdministrationBody?.ballotInfoUrl
+        }
+    }
+
+    val isBallotButtonEnabled = MediatorLiveData<Boolean>(false).apply {
+        addSource(ballotInfoUrl) { url ->
+            value = !url.isNullOrEmpty()
         }
     }
 

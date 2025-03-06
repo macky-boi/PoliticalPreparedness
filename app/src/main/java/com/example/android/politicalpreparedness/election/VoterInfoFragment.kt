@@ -29,63 +29,66 @@ class VoterInfoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?)
     : View? {
+
         val args: VoterInfoFragmentArgs by navArgs()
         val electionId = args.argElectionId
         val division = args.argDivision
-        Timber.d("onCreateView | electionId: $electionId, division: $division")
 
 
-        // TODO: Add ViewModel values and create ViewModel
+        // TODO: Add ViewModel values and create ViewModel (x)
         val appContainer = (requireActivity().application as PoliticalPreparednessApplication)
             .container
         val repository = appContainer.politicalPreparednessRepository
-        val factory = VoterInfoViewModelFactory(repository, electionId, division)
-        viewModel = ViewModelProvider(this, factory)[VoterInfoViewModel::class.java]
+        viewModel = ViewModelProvider(this,
+            VoterInfoViewModelFactory(repository, electionId, division)
+        )[VoterInfoViewModel::class.java]
 
-        // TODO: Add binding values
+
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_voter_info, container,false)
 
-        // TODO: Populate voter info -- hide views without provided data.
+
 
         /**
         Hint: You will need to ensure proper data is provided from previous fragment.
         */
-
-        // TODO: Handle loading of URLs
-
-        // TODO: Handle save button UI state
-        // TODO: cont'd Handle save button clicks
         return binding.root
     }
 
+    // TODO: Populate voter info -- hide views without provided data.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // TODO: Add binding values (x)
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel.voterInfo.observe(viewLifecycleOwner, Observer { voterInfoResponse ->
-            Timber.d("voterInfoResponse: $voterInfoResponse")
-            val input = voterInfoResponse?.state?.firstOrNull()?.name ?: ""
-            binding.stateHeader.text = getString(R.string.header_state, input)
-        })
 
-        viewModel.navigateToElections.observe(viewLifecycleOwner, Observer {
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            binding.stateHeader.text = getString(R.string.header_state, state)
+        }
+
+
+        viewModel.navigateToElections.observe(viewLifecycleOwner) {
             if (it) findNavController().popBackStack()
-        })
+        }
 
-        viewModel.ballotInfoUrl.observe(viewLifecycleOwner, Observer { url ->
-            Timber.d("ballotInfoUrl: $url")
-            if (url !== null) {
-                binding.stateBallot.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    startActivity(intent)
-                }
+        viewModel.isBallotButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
+            binding.stateBallot.isEnabled = isEnabled
+        }
+
+        // TODO: Handle loading of URLs (x)
+        binding.stateBallot.setOnClickListener {
+            viewModel.ballotInfoUrl.value?.let { url ->
+                loadIntent(url)
             }
-        })
+        }
 
-        viewModel.correspondenceAddress.observe(viewLifecycleOwner, Observer { correspondenceAddress ->
-            Timber.d("correspondenceAddress: $correspondenceAddress")
-        })
+        binding.stateBallot.setOnClickListener {
+            val url = viewModel.ballotInfoUrl.value
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        }
 
+
+        // TODO: Handle save button UI state (x)
         viewModel.isSaved.observe(viewLifecycleOwner) { isSaved ->
             binding.saveElectionButton.text = if (isSaved) {
                 getString(R.string.btn_unfollow_election)
@@ -93,7 +96,12 @@ class VoterInfoFragment : Fragment() {
                 getString(R.string.btn_follow_election)
             }
         }
+        viewModel.isSaveButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
+            binding.saveElectionButton.isEnabled = isEnabled != false
 
+        }
+
+        // TODO: Handle save button clicks (x)
         binding.saveElectionButton.setOnClickListener {
             if (viewModel.isSaved.value == true) {
                 viewModel.removeElection()
@@ -102,12 +110,11 @@ class VoterInfoFragment : Fragment() {
             }
         }
 
-        viewModel.isSaveButtonEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
-            binding.saveElectionButton.isEnabled = isEnabled != false
-        })
-
-
     }
 
-    // TODO: Create method to load URL intents
+    // TODO: Create method to load URL intents (x)
+    private fun loadIntent(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
+    }
 }
