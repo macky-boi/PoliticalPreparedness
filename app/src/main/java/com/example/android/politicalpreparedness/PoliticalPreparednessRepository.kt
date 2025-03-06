@@ -23,8 +23,8 @@ interface PoliticalPreparednessRepository {
     suspend fun getElections() : Result<ElectionResponse>
     suspend fun getVoterInfo(address: String, electionId: Int) : Result<VoterInfoResponse>
     suspend fun saveElection(election: Election)
-    fun getSavedElections() : LiveData<List<Election>>
-    fun getSavedElection(id: Int): LiveData<Election>
+    fun getSavedElections() : LiveData<List<Election>?>
+    fun getSavedElection(id: Int): LiveData<Election?>
     suspend fun deleteElection(id: Int)
 }
 
@@ -43,7 +43,7 @@ class PoliticalPreparednessRepositoryImpl(
         }
     }
 
-    override fun getSavedElection(id: Int): LiveData<Election> {
+    override fun getSavedElection(id: Int): LiveData<Election?> {
         try {
             return electionDao.getElection(id)
         } catch (e: Exception) {
@@ -61,7 +61,7 @@ class PoliticalPreparednessRepositoryImpl(
         }
     }
 
-    override fun getSavedElections() : LiveData<List<Election>> {
+    override fun getSavedElections() : LiveData<List<Election>?> {
         return electionDao.getAllElections()
     }
 
