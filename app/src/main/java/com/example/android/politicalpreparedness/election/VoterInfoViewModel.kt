@@ -74,9 +74,10 @@ class VoterInfoViewModel(
     }
 
 
-    val date = MediatorLiveData<String>().apply {
+    val date = MediatorLiveData("").apply {
         addSource(voterInfo) { voterInfo ->
-            this.value = voterInfo?.election?.electionDay.toString()
+            val electionDay = voterInfo?.election?.electionDay
+            value = electionDay?.toString() ?: ""
         }
     }
 

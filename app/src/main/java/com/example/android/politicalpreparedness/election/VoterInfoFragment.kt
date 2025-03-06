@@ -29,6 +29,9 @@ class VoterInfoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?)
     : View? {
+        /**
+        Hint: You will need to ensure proper data is provided from previous fragment.
+         */
 
         val args: VoterInfoFragmentArgs by navArgs()
         val electionId = args.argElectionId
@@ -47,70 +50,65 @@ class VoterInfoFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_voter_info, container,false)
 
-
-
-        /**
-        Hint: You will need to ensure proper data is provided from previous fragment.
-        */
         return binding.root
     }
 
     // TODO: Populate voter info -- hide views without provided data.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO: Add binding values (x)
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding.apply {
+            // TODO: Add binding values (x)
+            lifecycleOwner = viewLifecycleOwner
+            viewModelBinding = viewModel
 
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            binding.stateHeader.text = getString(R.string.header_state, state)
-        }
+            // TODO: Handle loading of URLs (x)
+            stateBallot.setOnClickListener {
+                onBallotClick()
+            }
 
-
-        viewModel.navigateToElections.observe(viewLifecycleOwner) {
-            if (it) findNavController().popBackStack()
-        }
-
-        viewModel.isBallotButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
-            binding.stateBallot.isEnabled = isEnabled
-        }
-
-        // TODO: Handle loading of URLs (x)
-        binding.stateBallot.setOnClickListener {
-            viewModel.ballotInfoUrl.value?.let { url ->
-                loadIntent(url)
+            // TODO: Handle save button clicks (x)
+            saveElectionButton.setOnClickListener {
+                onSaveElectionClick()
             }
         }
 
-        binding.stateBallot.setOnClickListener {
-            val url = viewModel.ballotInfoUrl.value
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
-        }
-
-
-        // TODO: Handle save button UI state (x)
-        viewModel.isSaved.observe(viewLifecycleOwner) { isSaved ->
-            binding.saveElectionButton.text = if (isSaved) {
-                getString(R.string.btn_unfollow_election)
-            } else {
-                getString(R.string.btn_follow_election)
+        viewModel.apply {
+            navigateToElections.observe(viewLifecycleOwner) {
+                if (it) findNavController().popBackStack()
             }
-        }
-        viewModel.isSaveButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
-            binding.saveElectionButton.isEnabled = isEnabled != false
 
-        }
-
-        // TODO: Handle save button clicks (x)
-        binding.saveElectionButton.setOnClickListener {
-            if (viewModel.isSaved.value == true) {
-                viewModel.removeElection()
-            } else {
-                viewModel.saveElection()
+            isBallotButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
+                binding.stateBallot.isEnabled = isEnabled
             }
-        }
 
+
+            // TODO: Handle save button UI state (x)
+            isSaved.observe(viewLifecycleOwner) { isSaved ->
+                binding.saveElectionButton.text = if (isSaved)
+                    getString(R.string.btn_unfollow_election)
+                 else
+                    getString(R.string.btn_follow_election)
+            }
+            isSaveButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
+                binding.saveElectionButton.isEnabled = isEnabled != false
+            }
+            correspondenceAddress.observe(viewLifecycleOwner) { address ->
+                Timber.d("address: $address")
+            }
+
+        }
     }
+
+    private fun onBallotClick() {
+        viewModel.ballotInfoUrl.value?.let { loadIntent(it) }
+    }
+
+    private fun onSaveElectionClick() {
+        if (viewModel.isSaved.value == true)
+            viewModel.removeElection() else
+            viewModel.saveElection()
+    }
+
 
     // TODO: Create method to load URL intents (x)
     private fun loadIntent(url: String) {
