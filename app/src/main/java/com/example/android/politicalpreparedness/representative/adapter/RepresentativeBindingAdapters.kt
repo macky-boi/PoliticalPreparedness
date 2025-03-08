@@ -1,9 +1,11 @@
 package com.example.android.politicalpreparedness.representative.adapter
 
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
 import androidx.core.net.toUri
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 
 @BindingAdapter("profileImage")

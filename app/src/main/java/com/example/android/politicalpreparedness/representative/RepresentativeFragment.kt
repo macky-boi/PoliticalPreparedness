@@ -4,8 +4,12 @@ import android.content.Context
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +20,7 @@ import com.example.android.politicalpreparedness.databinding.FragmentRepresentat
 import com.example.android.politicalpreparedness.election.VoterInfoViewModel
 import com.example.android.politicalpreparedness.election.VoterInfoViewModelFactory
 import com.example.android.politicalpreparedness.network.models.Address
+import timber.log.Timber
 import java.util.Locale
 
 class DetailFragment : Fragment() {
@@ -26,7 +31,7 @@ class DetailFragment : Fragment() {
         //TODO: Add Constant for Location request
     }
 
-    //TODO: Declare ViewModel
+    //TODO: Declare ViewModel (x)
     private lateinit var viewModel: RepresentativeViewModel
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -51,6 +56,43 @@ class DetailFragment : Fragment() {
         //TODO: Establish button listeners for field and location search
         return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.viewModelBinding = viewModel
+        binding.addressLine1.doAfterTextChanged { text ->
+            viewModel.updateLine1(text.toString())
+        }
+        binding.addressLine2.doAfterTextChanged { text ->
+            viewModel.updateLine2(text.toString())
+        }
+        binding.city.doAfterTextChanged { text ->
+            viewModel.updateCity(text.toString())
+        }
+        binding.state.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedState = parent?.getItemAtPosition(position).toString()
+                viewModel.updateState(selectedState)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+        binding.zip.doAfterTextChanged { text ->
+            viewModel.updateZip(text.toString())
+        }
+
+        viewModel.address.observe(viewLifecycleOwner) { address ->
+            Timber.d("address: $address")
+        }
+    }
+
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

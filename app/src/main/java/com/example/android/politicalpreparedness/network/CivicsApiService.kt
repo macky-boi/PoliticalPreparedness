@@ -49,7 +49,7 @@ interface CivicsApiService {
     //TODO: Add representatives API Call
     @GET("representatives")
     suspend fun getRepresentatives(
-        @Query("address") address: String?
+        @Query("address") address: String
     ): RepresentativeResponse
 }
 

@@ -16,4 +16,10 @@ data class Address (
         output = output.plus("$city, $state $zip")
         return output
     }
+    fun toApiServiceString(): String {
+        var output = line1.plus(",")
+        if (!line2.isNullOrEmpty()) output = output.plus(line2).plus(",")
+        output = output.plus("$city,$state,$zip")
+        return output
+    }
 }

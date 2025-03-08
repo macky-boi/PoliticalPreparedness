@@ -24,7 +24,7 @@ interface PoliticalPreparednessRepository {
     fun getSavedElections() : LiveData<List<Election>>
     fun getSavedElection(id: Int): LiveData<Election?>
     suspend fun deleteElection(id: Int)
-    suspend fun getRepresentatives(address: String?): Result<RepresentativeResponse>
+    suspend fun getRepresentatives(address: String): Result<RepresentativeResponse>
 }
 
 class PoliticalPreparednessRepositoryImpl(
@@ -83,7 +83,7 @@ class PoliticalPreparednessRepositoryImpl(
 
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    override suspend fun getRepresentatives(address: String?): Result<RepresentativeResponse> =
+    override suspend fun getRepresentatives(address: String): Result<RepresentativeResponse> =
         safeApiCall { service.getRepresentatives(address) }
 
 }
