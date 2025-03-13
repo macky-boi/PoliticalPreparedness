@@ -70,17 +70,6 @@ class RepresentativeViewModel(
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
     //TODO: Create function get address from geo location
 
     //TODO: Create function to get address from individual fields (x)

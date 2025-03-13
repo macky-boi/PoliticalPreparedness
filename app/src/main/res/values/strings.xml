@@ -19,4 +19,9 @@
     <string name="url_state_ballot">Click here for ballot information</string>
     <string name="btn_follow_election">Follow election</string>
     <string name="btn_unfollow_election">Unfollow election</string>
+
+    <!-- Fragment: Representative -->
+    <string name="permission_denied_explanation">You need to grant location permission in order to
+        play this game.</string>
+    <string name="settings">Settings</string>
 </resources>
