@@ -1,6 +1,7 @@
 package com.example.android.politicalpreparedness.network.models
 
 import com.squareup.moshi.JsonClass
+import timber.log.Timber
 
 @JsonClass(generateAdapter = true)
 data class Address (
@@ -17,9 +18,12 @@ data class Address (
         return output
     }
     fun toApiServiceString(): String {
-        var output = line1.plus(",")
-        if (!line2.isNullOrEmpty()) output = output.plus(line2).plus(",")
-        output = output.plus("$city,$state,$zip")
-        return output
+        return listOf(line1, line2, city, state, zip)
+            .filterNot {
+                Timber.d("field: $it")
+                Timber.d("bool: ${it.isNullOrBlank()}")
+                it.isNullOrBlank()
+            }
+            .joinToString(",")
     }
 }

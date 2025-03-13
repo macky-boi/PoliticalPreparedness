@@ -63,7 +63,7 @@ class PoliticalPreparednessRepositoryImpl(
                 is SocketTimeoutException -> "Request timed out"
                 is UnknownHostException -> "No internet connection"
                 is IOException -> "Network error: ${e.localizedMessage}"
-                is retrofit2.HttpException -> "HTTP error ${e.code()}: ${e.message()}"
+                is retrofit2.HttpException -> "HTTP error ${e.code()}: ${e.response()?.errorBody()?.string()}"
                 is JsonDataException -> "JSON parsing error: ${e.localizedMessage}"
                 is CancellationException -> "Operation was cancelled"
                 else -> "Unknown error: ${e.localizedMessage}"

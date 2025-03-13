@@ -88,6 +88,10 @@ class DetailFragment : Fragment() {
             viewModel.updateZip(text.toString())
         }
 
+        binding.buttonSearch.setOnClickListener {
+            viewModel.fetchRepresentatives()
+        }
+
         viewModel.address.observe(viewLifecycleOwner) { address ->
             Timber.d("address: $address")
         }
