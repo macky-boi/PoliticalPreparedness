@@ -3,16 +3,18 @@ package com.example.android.politicalpreparedness.representative
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.os.Handler
+import android.os.Looper
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.widget.doAfterTextChanged
@@ -22,15 +24,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.android.politicalpreparedness.BuildConfig
 import com.example.android.politicalpreparedness.PoliticalPreparednessApplication
 import com.example.android.politicalpreparedness.R
-import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
-import com.example.android.politicalpreparedness.election.VoterInfoViewModel
-import com.example.android.politicalpreparedness.election.VoterInfoViewModelFactory
 import com.example.android.politicalpreparedness.network.models.Address
-import com.google.android.gms.common.api.GoogleApi.Settings
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
 import timber.log.Timber
 import java.util.Locale
@@ -46,18 +48,20 @@ class DetailFragment : Fragment() {
             Timber.d("request location Permission GRANTED")
         } else {
             Timber.d("request location DENIED")
-            Snackbar.make(
-                binding.root,
-                R.string.permission_denied_explanation,
-                Snackbar.LENGTH_INDEFINITE
-            ).setAction(R.string.settings) {
-                displayAppSettingsScreen()
-            }.show()
+            showSnackBar(R.string.permission_denied_explanation, Snackbar.LENGTH_LONG) { displayAppSettingsScreen() }
         }
+    }
+
+    private val requestLocationSettingsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) {
+        Timber.d("requestLocationSettingsLauncher")
+        retryCheckLocationSettings()
     }
 
     companion object {
         //TODO: Add Constant for Location request
+//        private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
 //        private const val LOCATION_PERMISSION_INDEX = 0
 //        private const val LOCATION_PERMISSIONS_REQUEST_CODE = 34
     }
@@ -88,6 +92,7 @@ class DetailFragment : Fragment() {
         //TODO: Establish button listeners for field and location search
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -124,11 +129,13 @@ class DetailFragment : Fragment() {
             viewModel.fetchRepresentatives()
         }
 
+        binding.buttonLocation.setOnClickListener {
+            myLocationOnClick()
+        }
+
         viewModel.address.observe(viewLifecycleOwner) { address ->
             Timber.d("address: $address")
         }
-
-        checkLocationPermissions()
     }
 
     private fun displayAppSettingsScreen() {
@@ -150,36 +157,105 @@ class DetailFragment : Fragment() {
         }
     }
 
+    private fun checkLocationSettings(resolve: Boolean = true, onSuccess: () -> Unit) {
+        Timber.d("checkLocationSettings")
+
+        val locationRequest = LocationRequest.Builder(0)
+            .setPriority(Priority.PRIORITY_LOW_POWER)
+            .build()
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(requireContext())
+        val locationSettingsResponseTask = settingsClient.checkLocationSettings(builder.build())
+
+        locationSettingsResponseTask.addOnSuccessListener {
+            Timber.d("checkLocationSettings | location settings are enabled")
+            onSuccess()
+        }.addOnFailureListener { exception ->
+            Timber.d("checkLocationSettings | location settings are off")
+            if (exception is ResolvableApiException && resolve) {
+                try {
+                    val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
+                    requestLocationSettingsLauncher.launch(intentSenderRequest)
+                    Timber.d("checkLocationSettings | Prompting user to enable location settings")
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Timber.e(exception, "Error getting location settings resolution")
+                }
+            } else {
+                showSnackBar(R.string.location_required_error, Snackbar.LENGTH_LONG) { checkLocationSettings { onSuccess() } }
+            }
+        }
+    }
+
+    private fun retryCheckLocationSettings() {
+        // Delay to ensure system has applied the settings
+        Handler(Looper.getMainLooper()).postDelayed({
+            checkLocationSettings(false) { getLocation() }
+        }, 200)
+    }
+
+    private fun isGpsEnabled(): Boolean {
+        val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    //TODO: Get location from LocationServices (x)
+    //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
+    private fun getLocation() {
+
+        Timber.d("useCurrentLocation")
+        val cancellationTokenSource = CancellationTokenSource()
+
+        try {
+            locationProviderClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                cancellationTokenSource.token).addOnSuccessListener { location ->
+                    Timber.d("useCurrentLocation | location: $location")
+            }
+        } catch (e: SecurityException) {
+            Timber.e(e,"useCurrentLocation | Permissions are not granted")
+        }
+
+    }
+
+
+    private fun showSnackBar(stringId: Int, length: Int, action: () -> Unit) {
+        Snackbar.make(
+            binding.root,
+            stringId,
+            length
+        ).setAction(R.string.settings) {
+            action()
+        }.show()
+    }
+
 
     private fun requestLocationPermissions() {
         Timber.d("requesting location permission")
         requestPermissionsLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-//        *** deprecated ***
-//        val permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-//        requestPermissions(
-//            permissionsArray,
-//            LOCATION_PERMISSIONS_REQUEST_CODE
-//        )
     }
 
     private fun isPermissionGranted() : Boolean {
         //TODO: Check if permission is already granted and return (true = granted, false = denied/other)
-        return (ActivityCompat.checkSelfPermission(requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        return ActivityCompat.checkSelfPermission(requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun getLocation() {
-        //TODO: Get location from LocationServices
-        //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
+
+    private fun myLocationOnClick() {
+        if (!checkLocationPermissions()) return
+        checkLocationSettings {
+            getLocation()
+        }
     }
 
 //    private fun geoCodeLocation(location: Location): Address {
-//        val geocoder = Geocoder(context, Locale.getDefault())
+//        val geocoder = Geocoder(requireContext(), Locale.getDefault())
 //        return geocoder.getFromLocation(location.latitude, location.longitude, 1)
-//                .map { address ->
-//                    Address(address.thoroughfare, address.subThoroughfare, address.locality, address.adminArea, address.postalCode)
-//                }
-//                .first()
+//            ?.map { address ->
+//                Address(address.thoroughfare, address.subThoroughfare, address.locality, address.adminArea, address.postalCode)
+//            }?.first() ?:
 //    }
 //
 //    private fun hideKeyboard() {
