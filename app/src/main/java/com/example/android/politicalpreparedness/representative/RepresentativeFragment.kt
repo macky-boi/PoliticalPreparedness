@@ -9,6 +9,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,6 +17,7 @@ import android.view.*
 import android.widget.AdapterView
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
@@ -34,6 +36,7 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.io.IOException
 import timber.log.Timber
 import java.util.Locale
 
@@ -146,7 +149,7 @@ class DetailFragment : Fragment() {
         })
     }
 
-    private fun checkLocationPermissions(): Boolean {
+    private fun requireLocationPermissions(): Boolean {
         return if (isPermissionGranted()) {
             Timber.d("location permission is already granted")
             true
@@ -157,7 +160,7 @@ class DetailFragment : Fragment() {
         }
     }
 
-    private fun checkLocationSettings(resolve: Boolean = true, onSuccess: () -> Unit) {
+    private fun verifyLocationSettings(resolve: Boolean = true, onSuccess: () -> Unit) {
         Timber.d("checkLocationSettings")
 
         val locationRequest = LocationRequest.Builder(0)
@@ -181,7 +184,7 @@ class DetailFragment : Fragment() {
                     Timber.e(exception, "Error getting location settings resolution")
                 }
             } else {
-                showSnackBar(R.string.location_required_error, Snackbar.LENGTH_LONG) { checkLocationSettings { onSuccess() } }
+                showSnackBar(R.string.location_required_error, Snackbar.LENGTH_LONG) { verifyLocationSettings { onSuccess() } }
             }
         }
     }
@@ -189,7 +192,7 @@ class DetailFragment : Fragment() {
     private fun retryCheckLocationSettings() {
         // Delay to ensure system has applied the settings
         Handler(Looper.getMainLooper()).postDelayed({
-            checkLocationSettings(false) { getLocation() }
+            verifyLocationSettings(false) { getLocation() }
         }, 200)
     }
 
@@ -201,18 +204,22 @@ class DetailFragment : Fragment() {
     //TODO: Get location from LocationServices (x)
     //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
     private fun getLocation() {
+        Timber.d("getLocation")
 
-        Timber.d("useCurrentLocation")
         val cancellationTokenSource = CancellationTokenSource()
 
         try {
             locationProviderClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 cancellationTokenSource.token).addOnSuccessListener { location ->
-                    Timber.d("useCurrentLocation | location: $location")
+                    geoCodeLocation(location) { address ->
+                        address?.let {
+                            viewModel.updateAddress(it)
+                        }
+                    }
             }
         } catch (e: SecurityException) {
-            Timber.e(e,"useCurrentLocation | Permissions are not granted")
+            Timber.e(e,"getLocation | Permissions are not granted")
         }
 
     }
@@ -244,20 +251,68 @@ class DetailFragment : Fragment() {
 
 
     private fun myLocationOnClick() {
-        if (!checkLocationPermissions()) return
-        checkLocationSettings {
+        if (!requireLocationPermissions()) return
+        verifyLocationSettings {
             getLocation()
+        }
+    }
+
+    private fun geoCodeLocation(location: Location, onAddressFound: (Address?) -> Unit) {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geocoder.getFromLocation(
+                location.latitude,
+                location.longitude,
+                1,
+                object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                        val address = addresses.firstOrNull()?.let { addr ->
+                            Address(
+                                addr.thoroughfare,
+                                addr.subThoroughfare,
+                                addr.locality,
+                                addr.adminArea,
+                                addr.postalCode
+                            )
+                        }
+                        onAddressFound(address)
+                    }
+
+                    override fun onError(errorMessage: String?) {
+                        Timber.e("Geocoding error: $errorMessage")
+                        onAddressFound(null)
+                    }
+                })
+        } else {
+            try {
+                val addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                val address = addressList?.firstOrNull()?.let { addr ->
+                    Address(addr.thoroughfare, addr.subThoroughfare, addr.locality, addr.adminArea, addr.postalCode)
+                }
+                onAddressFound(address)
+            } catch (e: IOException) {
+                Timber.e(e, "Geocoding failed")
+                onAddressFound(null)
+            }
         }
     }
 
 //    private fun geoCodeLocation(location: Location): Address {
 //        val geocoder = Geocoder(requireContext(), Locale.getDefault())
 //        return geocoder.getFromLocation(location.latitude, location.longitude, 1)
-//            ?.map { address ->
-//                Address(address.thoroughfare, address.subThoroughfare, address.locality, address.adminArea, address.postalCode)
-//            }?.first() ?:
+//            .map { address ->
+//                Address(
+//                    address.thoroughfare,
+//                    address.subThoroughfare,
+//                    address.locality,
+//                    address.adminArea,
+//                    address.postalCode
+//                )
+//            }
+//            .first()
 //    }
-//
+
 //    private fun hideKeyboard() {
 //        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 //        imm.hideSoftInputFromWindow(view!!.windowToken, 0)

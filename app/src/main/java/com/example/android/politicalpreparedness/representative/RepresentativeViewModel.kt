@@ -93,4 +93,8 @@ class RepresentativeViewModel(
         _address.value = _address.value?.copy(zip = text)
     }
 
+    fun updateAddress(address: Address) {
+        _address.value = address
+    }
+
 }
