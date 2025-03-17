@@ -58,6 +58,11 @@ class RepresentativeViewModel(
             } ?: Pair(emptyList(), emptyList())
         }
 
+    fun fetchRepresentativesUsingAddress(address: Address) {
+        updateAddress(address)
+        fetchRepresentatives()
+    }
+
 
     //TODO: Create function to fetch representatives from API from a provided address
     fun fetchRepresentatives() {

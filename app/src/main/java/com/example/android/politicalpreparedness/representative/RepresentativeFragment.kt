@@ -17,7 +17,6 @@ import android.view.*
 import android.widget.AdapterView
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
@@ -192,7 +191,7 @@ class DetailFragment : Fragment() {
     private fun retryCheckLocationSettings() {
         // Delay to ensure system has applied the settings
         Handler(Looper.getMainLooper()).postDelayed({
-            verifyLocationSettings(false) { getLocation() }
+            verifyLocationSettings(false) { fetchRepresentativesUsingAddress() }
         }, 200)
     }
 
@@ -201,9 +200,11 @@ class DetailFragment : Fragment() {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
+
+
     //TODO: Get location from LocationServices (x)
     //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
-    private fun getLocation() {
+    private fun getLocation(onLocationFound: (Location) -> Unit) {
         Timber.d("getLocation")
 
         val cancellationTokenSource = CancellationTokenSource()
@@ -212,12 +213,8 @@ class DetailFragment : Fragment() {
             locationProviderClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 cancellationTokenSource.token).addOnSuccessListener { location ->
-                    geoCodeLocation(location) { address ->
-                        address?.let {
-                            viewModel.updateAddress(it)
-                        }
-                    }
-            }
+                    onLocationFound(location)
+                }
         } catch (e: SecurityException) {
             Timber.e(e,"getLocation | Permissions are not granted")
         }
@@ -249,15 +246,24 @@ class DetailFragment : Fragment() {
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
+    private fun fetchRepresentativesUsingAddress() {
+        getLocation { location ->
+            getAddress(location) { address ->
+                address?.let {
+                    viewModel.fetchRepresentativesUsingAddress(address)
+                }
+            }
+        }
+    }
 
     private fun myLocationOnClick() {
         if (!requireLocationPermissions()) return
         verifyLocationSettings {
-            getLocation()
+            fetchRepresentativesUsingAddress()
         }
     }
 
-    private fun geoCodeLocation(location: Location, onAddressFound: (Address?) -> Unit) {
+    private fun getAddress(location: Location, onAddressFound: (Address?) -> Unit) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
