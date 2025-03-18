@@ -84,20 +84,26 @@
                     android:layout_width="@dimen/official_socials_logo"
                     android:layout_height="@dimen/official_socials_logo"
                     android:src="@drawable/ic_facebook"
-                    android:layout_marginEnd="@dimen/padding_extra_small"/>
+                    android:layout_marginEnd="@dimen/padding_extra_small"
+                    android:visibility="invisible"
+                    tools:visibility="invisible"/>
 
                 <ImageView
                     android:id="@+id/twitterIcon"
                     android:layout_width="@dimen/official_socials_logo"
                     android:layout_height="@dimen/official_socials_logo"
                     android:layout_marginEnd="@dimen/padding_extra_small"
-                    android:src="@drawable/ic_twitter"/>
+                    android:src="@drawable/ic_twitter"
+                    tools:visibility="invisible"
+                    android:visibility="invisible"/>
 
                 <ImageView
                     android:id="@+id/wwwIcon"
                     android:layout_width="@dimen/official_socials_logo"
                     android:layout_height="@dimen/official_socials_logo"
-                    android:src="@drawable/ic_www"/>
+                    android:src="@drawable/ic_www"
+                    tools:visibility="invisible"
+                    android:visibility="invisible"/>
             </LinearLayout>
 
 

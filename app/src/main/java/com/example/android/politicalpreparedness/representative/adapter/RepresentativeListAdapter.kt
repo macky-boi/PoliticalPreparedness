@@ -53,7 +53,14 @@ class RepresentativeViewHolder(val binding: ItemRepresentativeBinding): Recycler
         binding.officialParty.text = item.official.party
 
         //TODO: Show social links ** Hint: Use provided helper methods
+        item.official.channels?.let {
+            showSocialLinks(it)
+        }
+
         //TODO: Show www link ** Hint: Use provided helper methods
+        item.official.urls?.let {
+            showWWWLinks(it)
+        }
 
         binding.executePendingBindings()
     }
