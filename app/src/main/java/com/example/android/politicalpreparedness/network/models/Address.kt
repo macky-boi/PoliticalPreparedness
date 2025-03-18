@@ -20,8 +20,6 @@ data class Address (
     fun toApiServiceString(): String {
         return listOf(line1, line2, city, state, zip)
             .filterNot {
-                Timber.d("field: $it")
-                Timber.d("bool: ${it.isNullOrBlank()}")
                 it.isNullOrBlank()
             }
             .joinToString(",")

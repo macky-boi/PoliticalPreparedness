@@ -22,11 +22,14 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.android.politicalpreparedness.BuildConfig
 import com.example.android.politicalpreparedness.PoliticalPreparednessApplication
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
 import com.example.android.politicalpreparedness.network.models.Address
+import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
@@ -61,13 +64,6 @@ class DetailFragment : Fragment() {
         retryCheckLocationSettings()
     }
 
-    companion object {
-        //TODO: Add Constant for Location request
-//        private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
-//        private const val LOCATION_PERMISSION_INDEX = 0
-//        private const val LOCATION_PERMISSIONS_REQUEST_CODE = 34
-    }
-
     //TODO: Declare ViewModel (x)
     private lateinit var viewModel: RepresentativeViewModel
 
@@ -99,7 +95,9 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModelBinding = viewModel
+        setupRecycleView(binding.electionsRecycleView)
         binding.addressLine1.doAfterTextChanged { text ->
             viewModel.updateLine1(text.toString())
         }
@@ -135,8 +133,17 @@ class DetailFragment : Fragment() {
             myLocationOnClick()
         }
 
+
         viewModel.address.observe(viewLifecycleOwner) { address ->
             Timber.d("address: $address")
+        }
+    }
+
+    private fun setupRecycleView(recyclerView: RecyclerView) {
+        Timber.d("setupRecycleView: $recyclerView")
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = RepresentativeListAdapter()
         }
     }
 
@@ -304,20 +311,6 @@ class DetailFragment : Fragment() {
         }
     }
 
-//    private fun geoCodeLocation(location: Location): Address {
-//        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-//        return geocoder.getFromLocation(location.latitude, location.longitude, 1)
-//            .map { address ->
-//                Address(
-//                    address.thoroughfare,
-//                    address.subThoroughfare,
-//                    address.locality,
-//                    address.adminArea,
-//                    address.postalCode
-//                )
-//            }
-//            .first()
-//    }
 
 //    private fun hideKeyboard() {
 //        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

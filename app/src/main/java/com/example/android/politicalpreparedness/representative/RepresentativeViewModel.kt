@@ -28,10 +28,11 @@ class RepresentativeViewModel(
     )
 
     //TODO: Establish live data for representatives and address
-    private val _representatives = MutableLiveData<List<Representative>>()
+    private val _representatives = MutableLiveData<List<Representative>>(emptyList())
+    val representatives: LiveData<List<Representative>> = _representatives
+
     private val _address = MutableLiveData<Address>(
-        Address("", null, "","","")
-    )
+        Address("", null, "","",""))
     val address : LiveData<Address> = _address
 
     /**
@@ -47,11 +48,11 @@ class RepresentativeViewModel(
                 val result = repository.getRepresentatives(address.toApiServiceString())
                 result.fold(
                     onSuccess = { representatives ->
-                        Timber.d("Successfully retrieved representatives: $representatives")
+                        Timber.d("Successfully retrieved representatives from network")
                         Pair(representatives.offices, representatives.officials)
                     },
                     onFailure = { error ->
-                        Timber.e(error, "Failed to retrieve representatives")
+                        Timber.e(error, "Failed to retrieve representatives from network")
                         Pair(emptyList(), emptyList())
                     }
                 )
@@ -68,9 +69,8 @@ class RepresentativeViewModel(
     fun fetchRepresentatives() {
         viewModelScope.launch {
             val (offices, officials) = getRepresentativesDeferred().await()
-
             _representatives.value = offices.flatMap { office -> office.getRepresentatives(officials) }
-            Timber.d("representatives: ${_representatives.value}")
+            Timber.d("update representatives: ${_representatives.value}")
         }
     }
 
@@ -98,7 +98,8 @@ class RepresentativeViewModel(
         _address.value = _address.value?.copy(zip = text)
     }
 
-    fun updateAddress(address: Address) {
+    private fun updateAddress(address: Address) {
+        Timber.d("update address")
         _address.value = address
     }
 
