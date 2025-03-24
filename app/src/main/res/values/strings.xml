@@ -25,4 +25,8 @@
         play this game.</string>
     <string name="settings">Settings</string>
     <string name="location_required_error">Location services must be enabled</string>
+    <string name="representative_search">Representative Search</string>
+    <string name="representative_title">My Representatives</string>
+    <string name="btn_find_representatives">FIND MY REPRESENTATIVES</string>
+    <string name="btn_use_location">USE MY LOCATION</string>
 </resources>
