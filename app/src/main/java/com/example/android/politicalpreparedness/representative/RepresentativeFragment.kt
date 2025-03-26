@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Visibility
 import com.example.android.politicalpreparedness.BuildConfig
 import com.example.android.politicalpreparedness.PoliticalPreparednessApplication
 import com.example.android.politicalpreparedness.R
@@ -47,31 +49,15 @@ class DetailFragment : Fragment() {
     private lateinit var binding: FragmentRepresentativeBinding
     private lateinit var locationProviderClient: FusedLocationProviderClient
 
-    private val requestPermissionsLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            Timber.d("request location Permission GRANTED")
-        } else {
-            Timber.d("request location DENIED")
-            showSnackBar(R.string.permission_denied_explanation, Snackbar.LENGTH_LONG) { displayAppSettingsScreen() }
-        }
-    }
-
-    private val requestLocationSettingsLauncher = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) {
-        Timber.d("requestLocationSettingsLauncher")
-        retryCheckLocationSettings()
-    }
-
     //TODO: Declare ViewModel (x)
     private lateinit var viewModel: RepresentativeViewModel
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
 
         locationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
         val appContainer = (requireActivity().application as PoliticalPreparednessApplication)
             .container
         val repository = appContainer.politicalPreparednessRepository
@@ -79,15 +65,9 @@ class DetailFragment : Fragment() {
             RepresentativeViewModelFactory(repository)
         )[RepresentativeViewModel::class.java]
 
-        //TODO: Establish bindings
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_representative, container,false)
 
-        //TODO: Define and assign Representative adapter
-
-        //TODO: Populate Representative adapter
-
-        //TODO: Establish button listeners for field and location search
         return binding.root
     }
 
@@ -95,66 +75,63 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModelBinding = viewModel
-        setupRecycleView(binding.electionsRecycleView)
-        binding.addressLine1.doAfterTextChanged { text ->
-            viewModel.updateLine1(text.toString())
-        }
-        binding.addressLine2.doAfterTextChanged { text ->
-            viewModel.updateLine2(text.toString())
-        }
-        binding.city.doAfterTextChanged { text ->
-            viewModel.updateCity(text.toString())
-        }
+        //TODO: Establish bindings (x)
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModelBinding = viewModel
+            setupRecycleView(binding.electionsRecycleView)
 
-        binding.state.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedState = parent?.getItemAtPosition(position).toString()
-                viewModel.updateState(selectedState)
+            addressLine1.doAfterTextChanged { text ->
+                viewModel.updateLine1(text.toString())
+            }
+            addressLine2.doAfterTextChanged { text ->
+                viewModel.updateLine2(text.toString())
+            }
+            city.doAfterTextChanged { text ->
+                viewModel.updateCity(text.toString())
+            }
+            state.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedState = parent?.getItemAtPosition(position).toString()
+                    viewModel.updateState(selectedState)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
+            zip.doAfterTextChanged { text ->
+                viewModel.updateZip(text.toString())
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+            //TODO: Establish button listeners for field and location search (x)
+            buttonSearch.setOnClickListener {
+                viewModel.fetchRepresentatives()
+                hideKeyboard()
             }
-        }
+            buttonSearchUsingDeviceLocation.setOnClickListener {
+                myLocationOnClick()
+                viewModel.toggleIsLoading()
+                hideKeyboard()
+            }
 
-        binding.zip.doAfterTextChanged { text ->
-            viewModel.updateZip(text.toString())
-        }
-
-        binding.buttonSearch.setOnClickListener {
-            viewModel.fetchRepresentatives()
-        }
-
-        binding.buttonLocation.setOnClickListener {
-            myLocationOnClick()
-        }
-
-
-        viewModel.address.observe(viewLifecycleOwner) { address ->
-            Timber.d("address: $address")
+            viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+                Timber.d("isLoading: $isLoading")
+                electionsRecycleView.visibility = if (isLoading) View.GONE else View.VISIBLE
+                listPlaceholder.visibility =  if (isLoading) View.VISIBLE else View.GONE
+            }
         }
     }
 
-    private fun setupRecycleView(recyclerView: RecyclerView) {
-        Timber.d("setupRecycleView: $recyclerView")
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = RepresentativeListAdapter()
+    private fun myLocationOnClick() {
+        if (!requireLocationPermissions()) return
+        verifyLocationSettings {
+            fetchRepresentativesUsingAddress()
         }
-    }
-
-    private fun displayAppSettingsScreen() {
-        startActivity(Intent().apply {
-            action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        })
     }
 
     private fun requireLocationPermissions(): Boolean {
@@ -168,9 +145,42 @@ class DetailFragment : Fragment() {
         }
     }
 
-    private fun verifyLocationSettings(resolve: Boolean = true, onSuccess: () -> Unit) {
-        Timber.d("checkLocationSettings")
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            Timber.d("request location Permission GRANTED")
+        } else {
+            Timber.d("request location DENIED")
+            showSnackBar(R.string.permission_denied_explanation, Snackbar.LENGTH_LONG) { displayAppSettingsScreen() }
+        }
+    }
 
+    private fun requestLocationPermissions() {
+        Timber.d("requesting location permission")
+        requestPermissionsLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    //TODO: Define and assign Representative adapter (x)
+    //TODO: Populate Representative adapter (x)
+    private fun setupRecycleView(recyclerView: RecyclerView) {
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = RepresentativeListAdapter()
+        }
+    }
+
+    private val requestLocationSettingsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { retryCheckLocationSettings() }
+
+    private fun retryCheckLocationSettings() {
+        // Delay to ensure system has applied the settings
+        Handler(Looper.getMainLooper()).postDelayed({
+            verifyLocationSettings(false) { fetchRepresentativesUsingAddress() }
+        }, 200)
+    }
+
+    private fun verifyLocationSettings(resolve: Boolean = true, onSuccess: () -> Unit) {
         val locationRequest = LocationRequest.Builder(0)
             .setPriority(Priority.PRIORITY_LOW_POWER)
             .build()
@@ -179,15 +189,15 @@ class DetailFragment : Fragment() {
         val locationSettingsResponseTask = settingsClient.checkLocationSettings(builder.build())
 
         locationSettingsResponseTask.addOnSuccessListener {
-            Timber.d("checkLocationSettings | location settings are enabled")
+            Timber.d("location settings are enabled")
             onSuccess()
         }.addOnFailureListener { exception ->
-            Timber.d("checkLocationSettings | location settings are off")
+            Timber.d("location settings are off")
             if (exception is ResolvableApiException && resolve) {
                 try {
                     val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
                     requestLocationSettingsLauncher.launch(intentSenderRequest)
-                    Timber.d("checkLocationSettings | Prompting user to enable location settings")
+                    Timber.d("Prompting user to enable location settings")
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Timber.e(exception, "Error getting location settings resolution")
                 }
@@ -197,25 +207,14 @@ class DetailFragment : Fragment() {
         }
     }
 
-    private fun retryCheckLocationSettings() {
-        // Delay to ensure system has applied the settings
-        Handler(Looper.getMainLooper()).postDelayed({
-            verifyLocationSettings(false) { fetchRepresentativesUsingAddress() }
-        }, 200)
-    }
-
     private fun isGpsEnabled(): Boolean {
         val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
-
-
     //TODO: Get location from LocationServices (x)
     //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
     private fun getLocation(onLocationFound: (Location) -> Unit) {
-        Timber.d("getLocation")
-
         val cancellationTokenSource = CancellationTokenSource()
 
         try {
@@ -241,10 +240,12 @@ class DetailFragment : Fragment() {
         }.show()
     }
 
-
-    private fun requestLocationPermissions() {
-        Timber.d("requesting location permission")
-        requestPermissionsLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun displayAppSettingsScreen() {
+        startActivity(Intent().apply {
+            action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        })
     }
 
     private fun isPermissionGranted() : Boolean {
@@ -262,13 +263,6 @@ class DetailFragment : Fragment() {
                     viewModel.fetchRepresentativesUsingAddress(address)
                 }
             }
-        }
-    }
-
-    private fun myLocationOnClick() {
-        if (!requireLocationPermissions()) return
-        verifyLocationSettings {
-            fetchRepresentativesUsingAddress()
         }
     }
 
@@ -314,10 +308,9 @@ class DetailFragment : Fragment() {
         }
     }
 
-
-//    private fun hideKeyboard() {
-//        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//        imm.hideSoftInputFromWindow(view!!.windowToken, 0)
-//    }
+    private fun hideKeyboard() {
+        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
+    }
 
 }

@@ -105,7 +105,7 @@
 
             <!-- TODO: Add visual styling and label -->
             <Button
-                android:id="@+id/button_search"
+                android:id="@+id/button_search_using_device_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/zip"
@@ -115,22 +115,18 @@
 
             <!-- TODO: Add visual styling and content -->
             <Button
-                android:id="@+id/button_location"
+                android:id="@+id/button_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/button_search"
+                app:layout_constraintTop_toBottomOf="@id/button_search_using_device_location"
                 android:text="@string/btn_find_representatives"
                 android:layout_marginLeft="@dimen/padding_small"
                 android:layout_marginRight="@dimen/padding_small"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
             <!-- TODO: Add visual styling and content -->
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -146,15 +142,19 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <!-- TODO: Add visual styling and content -->
-                <!--                <TextView-->
-                <!--                    android:id="@+id/list_placeholder"-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="0dp"-->
-                <!--                    android:gravity="center"-->
-                <!--                    android:textAlignment="center"-->
-                <!--                    android:visibility="gone"-->
-                <!--                    motion:visibilityMode="ignore"-->
-                <!--                    app:layout_constraintTop_toBottomOf="@id/representative_title" />-->
+                <TextView
+                    android:id="@+id/list_placeholder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:textSize="@dimen/text_large"
+                    android:textStyle="bold"
+                    android:text="Loading"/>
 
                 <!-- TODO: Add Representatives RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView
@@ -163,9 +163,9 @@
                     android:layout_height="wrap_content"
                     android:liveData="@{viewModelBinding.representatives}"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/representative_title" />
+                    app:layout_constraintTop_toBottomOf="@+id/representative_title"
+                    app:layout_constraintVertical_bias="0.0"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

@@ -28,6 +28,9 @@ class RepresentativeViewModel(
         Address("", null, "","",""))
     val address : LiveData<Address> = _address
 
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading : LiveData<Boolean> = _isLoading
+
     /**
     The following code will prove helpful in constructing a representative from the API. This code combines the two nodes of the RepresentativeResponse into a single official :
     Note: getRepresentatives in the above code represents the method used to fetch data from the API
@@ -59,9 +62,11 @@ class RepresentativeViewModel(
 
     //TODO: Create function to fetch representatives from API from a provided address
     fun fetchRepresentatives() {
+        _isLoading.value = true
         viewModelScope.launch {
             val (offices, officials) = getRepresentativesDeferred().await()
             _representatives.value = offices.flatMap { office -> office.getRepresentatives(officials) }
+            _isLoading.value = false
             Timber.d("update representatives: ${_representatives.value}")
         }
     }
@@ -93,6 +98,10 @@ class RepresentativeViewModel(
     private fun updateAddress(address: Address) {
         Timber.d("updateAddress | address: $address")
         _address.value = address
+    }
+
+    fun toggleIsLoading() {
+        _isLoading.value = isLoading.value?.not()
     }
 
 }
