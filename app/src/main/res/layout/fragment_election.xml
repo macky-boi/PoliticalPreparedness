@@ -24,7 +24,7 @@
             android:textSize="@dimen/extra_large"
             android:textStyle="bold"/>
 
-        <!-- TODO: Add Upcoming Election Recycler and Header -->
+        <!-- TODO: Add Upcoming Election Recycler and Header (x) -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/elections_recycleView"
             android:layout_width="match_parent"
@@ -45,7 +45,7 @@
             android:textSize="@dimen/extra_large"
             android:textStyle="bold"/>
 
-        <!-- TODO: Add Saved Election Recycler and Header -->
+        <!-- TODO: Add Saved Election Recycler and Header (x) -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/saved_elections_recycleView"
             android:layout_width="match_parent"

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:motion="http://schemas.android.com/tools">
 
-    <!-- TODO: Add data binding node -->
+    <!-- TODO: Add data binding node (x) -->
     <data>
         <variable
             name="viewModelBinding"
@@ -16,13 +16,14 @@
         android:layout_height="match_parent"
         app:layoutDescription="@xml/fragment_representative_scene">
 
-        <!-- TODO: Add motion scene to hide form on vertical scroll. -->
+        <!-- TODO: Add motion scene to hide form on vertical scroll. (x) -->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/search_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <!-- TODO: Add visual styling and content -->
             <TextView
                 android:id="@+id/search_title"
@@ -43,6 +44,7 @@
                 android:layout_height="wrap_content"
                 android:autofillHints=""
                 android:inputType="textPostalAddress"
+                android:text="@{viewModelBinding.address.line1}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/search_title" />
 
@@ -54,6 +56,7 @@
                 android:layout_height="0dp"
                 android:autofillHints=""
                 android:inputType="textPostalAddress"
+                android:text="@{viewModelBinding.address.line2}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/address_line_1" />
 
@@ -65,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:autofillHints=""
                 android:inputType="textPostalAddress"
+                android:text="@{viewModelBinding.address.city}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/state"
                 app:layout_constraintTop_toBottomOf="@id/address_line_2" />
@@ -82,6 +86,7 @@
                 app:layout_constraintStart_toEndOf="@id/city"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/city"
+                app:stateValue="@{viewModelBinding.address.state}"
                 app:layout_constraintBottom_toBottomOf="@id/city"/>
 
             <!-- TODO: Add data binding value -->
@@ -93,6 +98,7 @@
                 android:autofillHints=""
                 android:inputType="number"
                 android:maxLength="5"
+                android:text="@{viewModelBinding.address.zip}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/city"
                 app:layout_constraintTop_toBottomOf="@id/city" />

@@ -107,6 +107,7 @@ class DetailFragment : Fragment() {
         binding.city.doAfterTextChanged { text ->
             viewModel.updateCity(text.toString())
         }
+
         binding.state.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -121,6 +122,7 @@ class DetailFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
+
         binding.zip.doAfterTextChanged { text ->
             viewModel.updateZip(text.toString())
         }
@@ -301,6 +303,7 @@ class DetailFragment : Fragment() {
             try {
                 val addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1)
                 val address = addressList?.firstOrNull()?.let { addr ->
+                    Timber.d("getAddress | addr: $addr")
                     Address(addr.thoroughfare, addr.subThoroughfare, addr.locality, addr.adminArea, addr.postalCode)
                 }
                 onAddressFound(address)

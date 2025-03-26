@@ -20,13 +20,6 @@ class RepresentativeViewModel(
     private val repository: PoliticalPreparednessRepository
 ): ViewModel() {
 
-    private val sampleAddress = Address(
-        line1 = "123 Main St",
-        city = "Los Angeles",
-        state = "CA",
-        zip = "90001"
-    )
-
     //TODO: Establish live data for representatives and address
     private val _representatives = MutableLiveData<List<Representative>>(emptyList())
     val representatives: LiveData<List<Representative>> = _representatives
@@ -42,7 +35,6 @@ class RepresentativeViewModel(
      */
     private fun getRepresentativesDeferred() : Deferred<Pair<List<Office>, List<Official>>> =
         viewModelScope.async {
-            _address.value = sampleAddress
             address.value?.let { address ->
                 Timber.d("address: ${address.toApiServiceString()}")
                 val result = repository.getRepresentatives(address.toApiServiceString())
@@ -99,7 +91,7 @@ class RepresentativeViewModel(
     }
 
     private fun updateAddress(address: Address) {
-        Timber.d("update address")
+        Timber.d("updateAddress | address: $address")
         _address.value = address
     }
 
