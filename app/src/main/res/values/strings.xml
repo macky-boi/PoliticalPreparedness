@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Political Preparedness</string>
+    <string name="app_bar_title">US Election Info</string>
 
     <!-- TODO: Add necessary string values -->
 

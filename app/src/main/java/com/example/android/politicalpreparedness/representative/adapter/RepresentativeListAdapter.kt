@@ -32,6 +32,7 @@ class RepresentativeListAdapter: ListAdapter<Representative, RepresentativeViewH
     }
 }
 
+//TODO: Create RepresentativeDiffCallback
 class RepresentativeDiffCallback: DiffUtil.ItemCallback<Representative>() {
     override fun areItemsTheSame(oldItem: Representative, newItem: Representative): Boolean {
         return oldItem.official.name == newItem.official.name
@@ -111,6 +112,6 @@ class RepresentativeViewHolder(val binding: ItemRepresentativeBinding): Recycler
 
 }
 
-//TODO: Create RepresentativeDiffCallback
+
 
 //TODO: Create RepresentativeListener
