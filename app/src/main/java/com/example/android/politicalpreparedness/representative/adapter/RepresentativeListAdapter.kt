@@ -45,9 +45,8 @@ class RepresentativeDiffCallback: DiffUtil.ItemCallback<Representative>() {
 class RepresentativeViewHolder(val binding: ItemRepresentativeBinding): RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: Representative) {
-        Timber.d("bind | item: $item")
-        binding.representative = item
-        binding.representativePhoto.setImageResource(R.drawable.ic_profile)
+        Timber.d("bind | item: $item ")
+        binding.official = item.official
         binding.officeName.text = item.office.name
         binding.officialName.text = item.official.name
         binding.officialParty.text = item.official.party

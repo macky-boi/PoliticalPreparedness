@@ -7,12 +7,22 @@ import android.widget.Spinner
 import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.example.android.politicalpreparedness.R
+import timber.log.Timber
 
 @BindingAdapter("profileImage")
 fun fetchImage(view: ImageView, src: String?) {
+    Timber.d("fetchImage | src: $src")
     src?.let {
         val uri = src.toUri().buildUpon().scheme("https").build()
+        Timber.d("fetchImage | uri: $uri")
         //TODO: Add Glide call to load image and circle crop - user ic_profile as a placeholder and for errors.
+        Glide.with(view.context)
+            .load(uri)
+            .placeholder(R.drawable.ic_profile)
+            .circleCrop()
+            .into(view)
     }
 }
 

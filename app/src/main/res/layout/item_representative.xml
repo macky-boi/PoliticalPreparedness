@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="representative"
-            type="com.example.android.politicalpreparedness.representative.model.Representative"/>
+            name="official"
+            type="com.example.android.politicalpreparedness.network.models.Official"/>
     </data>
 
     <androidx.cardview.widget.CardView
@@ -25,6 +25,7 @@
                 android:id="@+id/representativePhoto"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
+                app:profileImage="@{official.photoUrl}"
                 android:src="@drawable/ic_profile"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
