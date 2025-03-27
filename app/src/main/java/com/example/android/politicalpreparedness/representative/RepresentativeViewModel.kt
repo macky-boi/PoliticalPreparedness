@@ -62,11 +62,11 @@ class RepresentativeViewModel(
 
     //TODO: Create function to fetch representatives from API from a provided address
     fun fetchRepresentatives() {
-        _isLoading.value = true
+        _isLoading.postValue(true)
         viewModelScope.launch {
             val (offices, officials) = getRepresentativesDeferred().await()
             _representatives.value = offices.flatMap { office -> office.getRepresentatives(officials) }
-            _isLoading.value = false
+            _isLoading.postValue(false)
             Timber.d("update representatives: ${_representatives.value}")
         }
     }
@@ -97,7 +97,7 @@ class RepresentativeViewModel(
 
     private fun updateAddress(address: Address) {
         Timber.d("updateAddress | address: $address")
-        _address.value = address
+        _address.postValue(address)
     }
 
     fun toggleIsLoading() {
