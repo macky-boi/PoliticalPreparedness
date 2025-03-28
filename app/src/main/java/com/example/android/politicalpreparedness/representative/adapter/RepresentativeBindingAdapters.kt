@@ -23,12 +23,16 @@ fun fetchImage(view: ImageView, src: String?) {
             .placeholder(R.drawable.ic_profile)
             .circleCrop()
             .into(view)
+    } ?: run {
+        // Clear if URL is null to avoid memory leaks
+        Glide.with(view.context).clear(view)
+        view.setImageResource(R.drawable.ic_profile)
     }
 }
 
 @BindingAdapter("stateValue")
 fun Spinner.setNewValue(value: String?) {
-    Timber.d("setValue | value: $value")
+    Timber.d("stateValue | value: $value")
     val adapter = toTypedAdapter<String>(this.adapter as ArrayAdapter<*>)
     val position = when (adapter.getItem(0)) {
         is String -> adapter.getPosition(value)

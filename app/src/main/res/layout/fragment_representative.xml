@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+
             <!-- TODO: Add visual styling and content -->
             <TextView
                 android:id="@+id/search_title"

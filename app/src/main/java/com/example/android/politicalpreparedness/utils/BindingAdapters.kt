@@ -1,5 +1,7 @@
 package com.example.android.politicalpreparedness.utils
 
+import android.widget.EditText
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.ListAdapter
@@ -19,4 +21,5 @@ object BindingAdapters {
             (recyclerView.adapter as? ListAdapter<T, RecyclerView.ViewHolder>)?.submitList(itemList)
         }
     }
+
 }
